@@ -221,6 +221,8 @@ void Main() {
 	Font font_50(50, Typeface::Regular, FontStyle::Italic), font_120(120, Typeface::Regular, FontStyle::Italic), font_35(35, Typeface::Regular, FontStyle::Italic), font_75(75, Typeface::Regular, FontStyle::Italic);
 	Font font_25(25, Typeface::Regular, FontStyle::Italic);
 	Stopwatch gamingtime;
+
+	int score = 0;
 	while (System::Update()) {
 		if (situation == 0) {
 			String title = U"SnakeRun";
@@ -283,6 +285,9 @@ void Main() {
 				game.draw();
 				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 6), Palette::Red);
 				font_25(gamingtime.s()).drawAt(40, 40, Palette::Yellow);
+				font_25(U"Score:").draw(10, 110, Palette::Lightyellow);
+				font_25(score).draw(10, 135, Palette::Springgreen);
+				if (Scene::FrameCount() % 10 == 0)score += game.snake.pos.size();
 			}
 			else {
 				game.draw(0.01);
@@ -291,12 +296,12 @@ void Main() {
 		}
 		else {
 			font_75(U"結果").drawAt(600, 120, Palette::Deepskyblue);
-			font_35(U"スコア:", game.snake.pos.size()).drawAt(600, 200, Palette::Lightgreen);
+			font_35(U"スコア:", score).drawAt(600, 200, Palette::Lightgreen);
 			if (!wrote_score) {
 				ofstream fout; fout.open("GameData/Scores.txt", ios::app);
-				fout << game.snake.pos.size() << endl;
+				fout << score << endl;
 				fout.close(); wrote_score = true;
-				scores.push_back(game.snake.pos.size());
+				scores.push_back(score);
 				sort(scores.begin(), scores.end(), greater<>());
 			}
 
@@ -304,7 +309,7 @@ void Main() {
 			int rank = 0;
 			for (int i = 0; i < 50; i++) {
 				if (i < scores.size()) {
-					if (scores[i] == game.snake.pos.size() && !isused) {
+					if (scores[i] == score && !isused) {
 						isused = true;
 						if (Scene::FrameCount() % 60 < 30) {
 							font_25(rank + 1, U"位   ", scores[i]).draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
@@ -335,6 +340,7 @@ void Main() {
 					wrote_score = false;
 					scores.clear();
 					gamingtime.reset();
+					score = 0;
 				}
 			}
 		}

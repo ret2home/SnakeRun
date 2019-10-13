@@ -258,7 +258,7 @@ void Main() {
 			font_35(U"ヘビの尻尾に自分の頭をくっつけましょう！").drawAt(600, 225);
 			font_35(U"頭をくっつけると、自分の長さが伸びます。").drawAt(600, 275);
 			font_35(U"自分の尻尾に頭をくっつけられないように気を付けましょう!").drawAt(600, 325);
-
+			font_35(U"左クリックしながらだと速くなります。").drawAt(600, 375);
 
 			Rect(420, 450, 360, 60).shearedX(120).draw(Palette::Blue);
 			font_35(U"戻る").drawAt(600, 480);
@@ -270,12 +270,22 @@ void Main() {
 			}
 		}
 		else if (situation == 2) {
-			if (!game.update() || gamingtime.s() >= 60) {
+			if (gamingtime.s() >= 60) {
 				situation = 3;
 			}
-			game.draw();
-			Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 6), Palette::Red);
-			font_25(gamingtime.s()).drawAt(40, 40, Palette::Yellow);
+			if (!game.isdead) {
+				if (!game.update()) {
+					gamingtime.reset();
+					gamingtime.start();
+				}
+				game.draw();
+				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 6), Palette::Red);
+				font_25(gamingtime.s()).drawAt(40, 40, Palette::Yellow);
+			}
+			else {
+				game.draw(0.01);
+				if (gamingtime.s() >= 2)situation = 3;
+			}
 		}
 		else {
 			font_75(U"結果").drawAt(600, 120, Palette::Deepskyblue);

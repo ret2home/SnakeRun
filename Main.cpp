@@ -159,7 +159,9 @@ struct Game {
 		for (int i = 0; i < other.size(); i++) {
 			if (end.intersects(Circle(other[i].pos[0].x, other[i].pos[0].y, 7))) {
 				for (int j = 0; j < snake.pos.size(); j++) {
-					dead.push_back({ snake.pos[j].x,snake.pos[j].y,180. / snake.pos.size() * j,1.0 });
+					if (j == 0)dead.push_back({ snake.pos[j].x,snake.pos[j].y,0,1.0 });
+					else if (j != snake.pos.size() - 1)dead.push_back({ snake.pos[j].x,snake.pos[j].y,120,1.0 });
+					else dead.push_back({ snake.pos[j].x,snake.pos[j].y,60,1.0 });
 				}
 				isdead = true;
 				return false;
@@ -184,9 +186,9 @@ struct Game {
 		if (!isdead) {
 			for (int i = 0; i < snake.pos.size(); i++) {
 				if (standard.x + snake.pos[i].x >= 0 && standard.x + snake.pos[i].x <= 1200 && standard.y + snake.pos[i].y >= 0 && standard.y + snake.pos[i].y <= 600) {
-					if (i == 0)Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(Palette::Red);
-					else if (i != snake.pos.size() - 1)Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(Palette::Green);
-					else Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(Palette::Yellow);
+					if (i == 0)Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(HSV(0));
+					else if (i != snake.pos.size() - 1)Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(HSV(120));
+					else Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(HSV(60));
 				}
 				snake.pos[i].x += standard.x;
 				snake.pos[i].y += standard.y;
@@ -299,21 +301,26 @@ void Main() {
 			}
 
 			bool isused = false;
+			int rank = 0;
 			for (int i = 0; i < 50; i++) {
 				if (i < scores.size()) {
 					if (scores[i] == game.snake.pos.size() && !isused) {
 						isused = true;
 						if (Scene::FrameCount() % 60 < 30) {
-							font_25(i + 1, U"位   ", scores[i]).draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
+							font_25(rank + 1, U"位   ", scores[i]).draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
 						}
 					}
 					else {
-						font_25(i + 1, U"位   ", scores[i]).draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
+						font_25(rank + 1, U"位   ", scores[i]).draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
 					}
 				}
 				else {
-					font_25(i + 1, U"位   -").draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
+					font_25(rank + 1, U"位   -").draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
 				}
+				if (i < scores.size() - 1 && scores[i] != scores[i + 1]) {
+					rank = i + 1;
+				}
+				if (i == scores.size() - 1)rank = i + 1;
 			}
 			Rect(420, 550, 360, 40).shearedX(120).draw(Palette::Blue);
 			font_35(U"戻る").drawAt(600, 570);

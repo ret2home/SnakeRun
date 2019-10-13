@@ -234,8 +234,7 @@ void Main() {
 					Rect(420, 180 + 90 * i, 360, 60).shearedX(120).drawFrame(7, Palette::Yellow);
 					if (Rect(420, 180 + 90 * i, 360, 60).shearedX(120).leftClicked()) {
 						situation = i;
-						if (i == 1)game.init(0);
-						else {
+						if (i == 2) {
 							game.init(); gamingtime.start();
 						}
 					}
@@ -260,7 +259,6 @@ void Main() {
 			font_35(U"頭をくっつけると、自分の長さが伸びます。").drawAt(600, 275);
 			font_35(U"自分の尻尾に頭をくっつけられないように気を付けましょう!").drawAt(600, 325);
 
-			game.update(); game.draw();
 
 			Rect(420, 450, 360, 60).shearedX(120).draw(Palette::Blue);
 			font_35(U"戻る").drawAt(600, 480);

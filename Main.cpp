@@ -64,6 +64,7 @@ struct Game {
 	vector<Snake>other;
 	Point standard;
 	vector<ColorPoint2D>dead;
+	vector<Point2D>back;
 	bool isdead = false;
 	void init(int size = 100) {
 		isdead = false;
@@ -78,6 +79,12 @@ struct Game {
 			if (x >= 400 && x <= 800 && y >= 100 && y <= 500)goto loop;
 			s.init(x, y);
 			other.push_back(s);
+		}
+		back.clear();
+		for (double i = -2000; i < 2000; i += 50) {
+			for (double j = -2000; j < 2000; j += 50) {
+				back.push_back({ i ,j });
+			}
 		}
 	}
 	bool update() {
@@ -173,6 +180,19 @@ struct Game {
 		standard.x = 600 - snake.pos[0].x;
 		standard.y = 300 - snake.pos[0].y;
 
+		int diffx = (2000 - back.back().x) / 50, diffy = (2000 - back.back().y) / 50;
+		for (int i = 0; i < back.size(); i++) {
+			if (!isdead) {
+				back[i].x += standard.x;
+				back[i].y += standard.y;
+				back[i].x += diffx * 50;
+				back[i].y += diffy * 50;
+			}
+			if (back[i].x >= -100 && back[i].x <= 1300 && back[i].y >= -100 && back[i].y <= 700) {
+				Rect(back[i].x, back[i].y, 40, 40).draw(Palette::Black);
+			}
+		}
+
 		for (int i = 0; i < other.size(); i++) {
 			for (int j = 0; j < other[i].pos.size(); j++) {
 				if (standard.x + other[i].pos[j].x >= 0 && standard.x + other[i].pos[j].x <= 1200 && standard.y + other[i].pos[j].y >= 0 && standard.y + other[i].pos[j].y <= 600) {
@@ -210,7 +230,6 @@ struct Game {
 	}
 };
 void Main() {
-	//Scene::SetBackground(ColorF(0.8, 0.9, 1.0));
 	Window::Resize(1200, 600);
 	Window::SetTitle(U"Snake Run");
 

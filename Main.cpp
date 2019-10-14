@@ -2,6 +2,8 @@
 # include <Siv3D.hpp> // OpenSiv3D v0.4.1
 using namespace std;
 
+# define SIV3D_WINDOWS_HIGH_DPI
+
 struct Point2D {
 	double x, y;
 };
@@ -38,15 +40,14 @@ struct Snake {
 		}
 	}
 	void unite(int size) {
-		double degree = 0;
+		double degree = Random(0, 360);
 		for (int i = 0; i < size; i++) {
-			degree = Random(degree - 30, degree + 30);
 			double x = pos.back().x + cos(ToRadians(90 - degree)) * 14.;
 			double y = pos.back().y - sin(ToRadians(90 - degree)) * 14.;
 			pos.push_back({ x,y });
 		}
 	}
-	void init(double x, double y, double size = 3) {
+	void init(double x, double y, double size = 5) {
 		pos.clear();
 		pos.push_back({ x,y });
 		unite(size - 1);
@@ -63,23 +64,27 @@ struct Game {
 	vector<ColorPoint2D>dead;
 	vector<Point2D>back;
 	bool isdead = false;
-	void init(int size = 30) {
+	int windowx, windowy;
+	int score = 0;
+	void init(int x, int y, int size = 30) {
+		score = 0;
+		windowx = x; windowy = y;
 		isdead = false;
 		other.clear();
 		dead.clear();
-		snake.init(600, 300, 5);
+		snake.init((double)windowx / 2, (double)windowy / 2, 7);
 		for (int i = 0; i < size; i++) {
 			Snake s;
 			double x, y;
 		loop:;
-			x = Random(-1000, 2200); y = Random(-1000, 1600);
-			if (x >= 400 && x <= 800 && y >= 100 && y <= 500)goto loop;
+			x = Random(-500, 2400); y = Random(-500, 1600);
+			if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop;
 			s.init(x, y);
 			other.push_back(s);
 		}
 		back.clear();
-		for (double i = -100; i < 1300; i += 50) {
-			for (double j = -100; j < 700; j += 50) {
+		for (double i = -100; i < x + 100; i += 50) {
+			for (double j = -100; j < y + 100; j += 50) {
 				back.push_back({ i ,j });
 			}
 		}
@@ -114,15 +119,21 @@ struct Game {
 				double y = other[i].pos[0].y - (snake.pos[0].y - other[i].pos[0].y);
 				other[i].update(true, true, x, y);
 			}
-			else {
+			else if (escape > chase) {
 				other[i].update(true, chase < 200., other[chindex].pos.back().x, other[chindex].pos.back().y);
+			}
+			else {
+				double x = other[i].pos[0].x - (other[esindex].pos[0].x - other[i].pos[0].x);
+				double y = other[i].pos[0].y - (other[esindex].pos[0].y - other[i].pos[0].y);
+				other[i].update(true, false, x, y);
 			}
 		}
 
 		Circle tip(snake.pos[0].x, snake.pos[0].y, 15);
 		for (int i = 0; i < other.size(); i++) {
 			if (tip.intersects(Circle(other[i].pos.back().x, other[i].pos.back().y, 15))) {
-				snake.unite(other[i].pos.size());
+				score += other[i].pos.size();
+				snake.unite(1);
 				AudioAsset(U"eat").stop(); AudioAsset(U"eat").play();
 				for (int j = 0; j < other[i].pos.size(); j++) {
 					dead.push_back({ other[i].pos[j].x,other[i].pos[j].y,180. / other[i].pos.size() * j,1. });
@@ -130,11 +141,19 @@ struct Game {
 				other[i] = other.back(); other.pop_back();
 				Snake s; double x, y;
 			loop:;
-				x = Random(-1000, 2200); y = Random(-1000, 1600);
-				if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop;
+				x = Random(-500, 2400); y = Random(-500, 1600);
+				if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop;
 				s.init(x, y);
 				other.push_back(s);
 				return true;
+			}
+			if (other[i].pos[0].x < -500 || other[i].pos[0].x > 2400 || other[i].pos[0].y < -500 || other[i].pos[0].y > 1600) {
+				Snake s; double x, y;
+			loop2:;
+				x = Random(-500, 2400); y = Random(-500, 1600);
+				if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop2;
+				s.init(x, y);
+				other[i] = s;
 			}
 		}
 		for (int i = 0; i < other.size(); i++) {
@@ -142,16 +161,16 @@ struct Game {
 			for (int j = 0; j < other.size(); j++) {
 				if (i == j)continue;
 				if (c1.intersects(Circle(other[j].pos.back().x, other[j].pos.back().y, 7))) {
-					other[i].unite(other[j].pos.size());
+					other[i].unite(1);
 					for (int k = 0; k < other[j].pos.size(); k++) {
 						dead.push_back({ other[j].pos[k].x,other[j].pos[k].y,180. / other[j].pos.size() * k,1.0 });
 					}
 					other[j] = other.back(); other.pop_back();
 					Snake s;
 					double x, y;
-				loop2:;
-					x = Random(-1000, 2200); y = Random(-1000, 1600);
-					if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop2;
+				loop3:;
+					x = Random(-500, 2400); y = Random(-500, 1600);
+					if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop3;
 					s.init(x, y);
 					other.push_back(s);
 					return true;
@@ -173,10 +192,10 @@ struct Game {
 		return true;
 	}
 	void draw(double speed = 0.03) {
-		standard.x = 600 - snake.pos[0].x;
-		standard.y = 300 - snake.pos[0].y;
+		standard.x = windowx / 2 - snake.pos[0].x;
+		standard.y = windowy / 2 - snake.pos[0].y;
 
-		int diffx = (1300 - back.back().x) / 50, diffy = (700 - back.back().y) / 50;
+		int diffx = (windowx + 100 - back.back().x) / 50, diffy = (windowy + 100 - back.back().y) / 50;
 		for (int i = 0; i < back.size(); i++) {
 			if (!isdead) {
 				back[i].x += standard.x;
@@ -184,14 +203,14 @@ struct Game {
 				back[i].x += diffx * 50;
 				back[i].y += diffy * 50;
 			}
-			if (back[i].x >= -100 && back[i].x <= 1300 && back[i].y >= -100 && back[i].y <= 700) {
+			if (back[i].x >= -100 && back[i].x <= windowx + 100 && back[i].y >= -100 && back[i].y <= windowy + 100) {
 				Rect(back[i].x, back[i].y, 40, 40).draw(Palette::Black);
 			}
 		}
 
 		for (int i = 0; i < other.size(); i++) {
 			for (int j = 0; j < other[i].pos.size(); j++) {
-				if (standard.x + other[i].pos[j].x >= 0 && standard.x + other[i].pos[j].x <= 1200 && standard.y + other[i].pos[j].y >= 0 && standard.y + other[i].pos[j].y <= 600) {
+				if (standard.x + other[i].pos[j].x >= 0 && standard.x + other[i].pos[j].x <= windowx && standard.y + other[i].pos[j].y >= 0 && standard.y + other[i].pos[j].y <= windowy) {
 					Circle(standard.x + other[i].pos[j].x, standard.y + other[i].pos[j].y, 7).draw(HSV(180. / other[i].pos.size() * j));
 				}
 				if (!isdead) {
@@ -201,7 +220,7 @@ struct Game {
 		}
 		if (!isdead) {
 			for (int i = 0; i < snake.pos.size(); i++) {
-				if (standard.x + snake.pos[i].x >= 0 && standard.x + snake.pos[i].x <= 1200 && standard.y + snake.pos[i].y >= 0 && standard.y + snake.pos[i].y <= 600) {
+				if (standard.x + snake.pos[i].x >= 0 && standard.x + snake.pos[i].x <= windowx && standard.y + snake.pos[i].y >= 0 && standard.y + snake.pos[i].y <= windowy) {
 					if (i == 0)Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(HSV(0));
 					else if (i != snake.pos.size() - 1)Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(HSV(120));
 					else Circle(standard.x + snake.pos[i].x, standard.y + snake.pos[i].y, 7).draw(HSV(60));
@@ -211,7 +230,7 @@ struct Game {
 			}
 		}
 		for (int i = 0; i < dead.size(); i++) {
-			if (standard.x + dead[i].x >= 0 && standard.x + dead[i].x <= 1200 && standard.y + dead[i].y >= 0 && standard.y + dead[i].y <= 600) {
+			if (standard.x + dead[i].x >= 0 && standard.x + dead[i].x <= windowx && standard.y + dead[i].y >= 0 && standard.y + dead[i].y <= windowy) {
 				Circle(standard.x + dead[i].x, standard.y + dead[i].y, 7).draw(HSV(dead[i].Color, dead[i].trans));
 			}
 			if (!isdead) {
@@ -237,12 +256,12 @@ void Main() {
 	Font font_25(25, Typeface::Regular, FontStyle::Italic);
 	Stopwatch gamingtime;
 
-	int score = 0;
 
-	AudioAsset::Register(U"gameplay", U"GameData/gameplay.mp3", AssetParameter::LoadAsync());
 	AudioAsset::Register(U"eat", U"GameData/eat.mp3", AssetParameter::LoadAsync());
 	AudioAsset::Register(U"die", U"GameData/die.mp3", AssetParameter::LoadAsync());
-	AudioAsset(U"gameplay").setLoop(true);
+	Audio gameplay(U"GameData/gameplay.mp3", Arg::loop = true);
+
+	const Array<Size> resolutions = Graphics::GetFullscreenResolutions();
 
 	while (System::Update()) {
 		if (situation == 0) {
@@ -260,8 +279,9 @@ void Main() {
 					if (Rect(420, 180 + 90 * i, 360, 60).shearedX(120).leftClicked()) {
 						situation = i;
 						if (i == 2) {
-							game.init(); gamingtime.start();
-							AudioAsset(U"gameplay").play();
+							game.init(resolutions.back().x, resolutions.back().y); gamingtime.start();
+							gameplay.play();
+							Window::SetFullscreen(true, resolutions.back());
 						}
 					}
 				}
@@ -295,38 +315,39 @@ void Main() {
 			}
 		}
 		else if (situation == 2) {
-			if (gamingtime.s() >= 1200) {
+			if (gamingtime.s() >= 120) {
 				situation = 3;
+				Window::SetFullscreen(false);
 			}
 			if (!game.isdead) {
 				if (!game.update()) {
 					gamingtime.reset();
 					gamingtime.start();
-					AudioAsset(U"gameplay").stop();
+					gameplay.stop();
 					AudioAsset(U"die").play();
 				}
 				game.draw();
 				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 3), Palette::Red);
 				font_25(gamingtime.s()).drawAt(40, 40, Palette::Yellow);
 				font_25(U"Score:").draw(10, 110, Palette::Lightyellow);
-				font_25(score).draw(10, 135, Palette::Springgreen);
-				if (Scene::FrameCount() % 10 == 0)score += game.snake.pos.size();
+				font_25(game.score).draw(10, 135, Palette::Springgreen);
 			}
 			else {
 				game.draw(0.01);
 				if (gamingtime.s() >= 2) {
 					situation = 3;
+					Window::SetFullscreen(false);
 				}
 			}
 		}
 		else {
 			font_75(U"結果").drawAt(600, 120, Palette::Deepskyblue);
-			font_35(U"スコア:", score).drawAt(600, 200, Palette::Lightgreen);
+			font_35(U"スコア:", game.score).drawAt(600, 200, Palette::Lightgreen);
 			if (!wrote_score) {
 				ofstream fout; fout.open("GameData/Scores.txt", ios::app);
-				fout << score << endl;
+				fout << game.score << endl;
 				fout.close(); wrote_score = true;
-				scores.push_back(score);
+				scores.push_back(game.score);
 				sort(scores.begin(), scores.end(), greater<>());
 			}
 
@@ -334,7 +355,7 @@ void Main() {
 			int rank = 0;
 			for (int i = 0; i < 50; i++) {
 				if (i < scores.size()) {
-					if (scores[i] == score && !isused) {
+					if (scores[i] == game.score && !isused) {
 						isused = true;
 						if (Scene::FrameCount() % 60 < 30) {
 							font_25(rank + 1, U"位   ", scores[i]).draw(100 + i / 10 * 220, 250 + i % 10 * 28, HSV(36 + i * 3.5));
@@ -365,7 +386,6 @@ void Main() {
 					wrote_score = false;
 					scores.clear();
 					gamingtime.reset();
-					score = 0;
 				}
 			}
 		}

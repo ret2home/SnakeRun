@@ -318,6 +318,7 @@ void Main() {
 			if (gamingtime.s() >= 120) {
 				situation = 3;
 				Window::SetFullscreen(false);
+				gameplay.stop();
 			}
 			if (!game.isdead) {
 				if (!game.update(gamingtime.s())) {

@@ -16,7 +16,7 @@ struct Snake {
 
 		double para;
 		if (!automode)para = 1.0 + (pos.size() - 5) / 60.;
-		else para = 1.0 + (pos.size() - 5) / 5.;
+		else para = 1.0 + (pos.size() - 5) / 30.;
 
 		if (!automode && sqrt(pow(abs(x - pos[0].x), 2) + pow(abs(y - pos[0].y), 2)) <= 15.0)goto loop;
 
@@ -102,10 +102,8 @@ struct Game {
 			int chindex = -1, esindex = -1;
 			double chase = dis(snake.pos.back().x, snake.pos.back().y, other[i].pos[0].x, other[i].pos[0].y);
 			double escape = dis(snake.pos[0].x, snake.pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
-			if (chase >= escape) {
-				chindex = 1; chase = 10000.;
-			}
-			if (escape <= 200) {
+			if (chase >= escape && escape <= other[i].pos.size() * 40) {
+				chindex = 0;
 				goto mawari;
 			}
 			for (int j = 0; j < other.size(); j++) {
@@ -124,7 +122,7 @@ struct Game {
 			if (chindex == -1) {
 				other[i].update(true, true, snake.pos.back().x, snake.pos.back().y);
 			}
-			else if (esindex == -1) {
+			else if (esindex == -1 && escape <= other[i].pos.size() * 40) {
 				double degree;
 				degree = 90 - ToDegrees(atan2(snake.pos[0].y - other[i].pos[0].y, other[i].pos[0].x - snake.pos[0].x));
 				double x, y;
@@ -138,13 +136,8 @@ struct Game {
 				}
 				other[i].update(true, true, x, y);
 			}
-			else if (escape > 200) {
-				other[i].update(true, chase < 200., other[chindex].pos.back().x, other[chindex].pos.back().y);
-			}
 			else {
-				double x = other[i].pos[0].x - (other[esindex].pos[0].x - other[i].pos[0].x);
-				double y = other[i].pos[0].y - (other[esindex].pos[0].y - other[i].pos[0].y);
-				other[i].update(true, false, x, y);
+				other[i].update(true, chase < 200., other[chindex].pos.back().x, other[chindex].pos.back().y);
 			}
 		}
 

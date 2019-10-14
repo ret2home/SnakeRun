@@ -105,6 +105,9 @@ struct Game {
 			if (chase >= escape) {
 				chindex = 1; chase = 10000.;
 			}
+			if (escape <= 200) {
+				goto mawari;
+			}
 			for (int j = 0; j < other.size(); j++) {
 				if (i == j)continue;
 				double di1 = dis(other[i].pos[0].x, other[i].pos[0].y, other[j].pos.back().x, other[j].pos.back().y);
@@ -117,6 +120,7 @@ struct Game {
 					chindex = j; chase = di1;
 				}
 			}
+		mawari:;
 			if (chindex == -1) {
 				other[i].update(true, true, snake.pos.back().x, snake.pos.back().y);
 			}

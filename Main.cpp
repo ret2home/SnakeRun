@@ -89,7 +89,7 @@ struct Game {
 			}
 		}
 	}
-	bool update() {
+	bool update(int gamingtime) {
 		snake.update(false || isdead, true, Cursor::Pos().x, Cursor::Pos().y);
 
 		for (int i = 0; i < other.size(); i++) {
@@ -143,7 +143,7 @@ struct Game {
 			loop:;
 				x = Random(-500, 2400); y = Random(-500, 1600);
 				if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop;
-				s.init(x, y);
+				s.init(x, y, 5 + gamingtime / 10);
 				other.push_back(s);
 				return true;
 			}
@@ -152,7 +152,7 @@ struct Game {
 			loop2:;
 				x = Random(-500, 2400); y = Random(-500, 1600);
 				if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop2;
-				s.init(x, y);
+				s.init(x, y, 5 + gamingtime / 10);
 				other[i] = s;
 			}
 		}
@@ -171,7 +171,7 @@ struct Game {
 				loop3:;
 					x = Random(-500, 2400); y = Random(-500, 1600);
 					if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop3;
-					s.init(x, y);
+					s.init(x, y, 5 + gamingtime / 10);
 					other.push_back(s);
 					return true;
 				}
@@ -320,7 +320,7 @@ void Main() {
 				Window::SetFullscreen(false);
 			}
 			if (!game.isdead) {
-				if (!game.update()) {
+				if (!game.update(gamingtime.s())) {
 					gamingtime.reset();
 					gamingtime.start();
 					gameplay.stop();

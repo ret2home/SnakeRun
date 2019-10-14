@@ -67,7 +67,7 @@ struct Game {
 	vector<ColorPoint2D>dead;
 	vector<Point2D>back;
 	bool isdead = false;
-	void init(int size = 100) {
+	void init(int size = 30) {
 		isdead = false;
 		other.clear();
 		dead.clear();
@@ -130,14 +130,12 @@ struct Game {
 					dead.push_back({ other[i].pos[j].x,other[i].pos[j].y,180. / other[i].pos.size() * j,1. });
 				}
 				other[i] = other.back(); other.pop_back();
-				if (other.size() < 50) {
-					Snake s; double x, y;
-				loop:;
-					x = Random(-1000, 2200); y = Random(-1000, 1600);
-					if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop;
-					s.init(x, y);
-					other.push_back(s);
-				}
+				Snake s; double x, y;
+			loop:;
+				x = Random(-1000, 2200); y = Random(-1000, 1600);
+				if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop;
+				s.init(x, y);
+				other.push_back(s);
 				return true;
 			}
 		}
@@ -151,15 +149,13 @@ struct Game {
 						dead.push_back({ other[j].pos[k].x,other[j].pos[k].y,180. / other[j].pos.size() * k,1.0 });
 					}
 					other[j] = other.back(); other.pop_back();
-					if (other.size() < 50) {
-						Snake s;
-						double x, y;
-					loop2:;
-						x = Random(-1000, 2200); y = Random(-1000, 1600);
-						if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop2;
-						s.init(x, y);
-						other.push_back(s);
-					}
+					Snake s;
+					double x, y;
+				loop2:;
+					x = Random(-1000, 2200); y = Random(-1000, 1600);
+					if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop2;
+					s.init(x, y);
+					other.push_back(s);
 					return true;
 				}
 			}

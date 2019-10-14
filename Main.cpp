@@ -17,21 +17,17 @@ struct Snake {
 		if (!automode)degree = 90 - ToDegrees(atan2(pos[0].y - y, x - pos[0].x));
 		else degree = 90 - ToDegrees(atan2(pos[0].y - y, x - pos[0].x));
 
-		if (isfast && !automode) {
+		if (!automode) {
 			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 360.;
 			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 360.;
 		}
 		else if (isfast) {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 180.;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 180.;
-		}
-		else if (!automode) {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 120.;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 120.;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 210.;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 210.;
 		}
 		else {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 90.;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 90.;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 150.;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 150.;
 		}
 	loop:;
 
@@ -89,7 +85,7 @@ struct Game {
 		}
 	}
 	bool update() {
-		snake.update(false || isdead, MouseL.pressed(), Cursor::Pos().x, Cursor::Pos().y);
+		snake.update(false || isdead, true, Cursor::Pos().x, Cursor::Pos().y);
 
 		for (int i = 0; i < other.size(); i++) {
 			int chindex = -1, esindex = -1;
@@ -111,10 +107,12 @@ struct Game {
 				}
 			}
 			if (chindex == -1) {
-				other[i].update(true, chase < 200., snake.pos.back().x, snake.pos.back().y);
+				other[i].update(true, true, snake.pos.back().x, snake.pos.back().y);
 			}
 			else if (esindex == -1) {
-				other[i].update(true, escape < 200., other[chindex].pos.back().x, other[chindex].pos.back().y);
+				double x = other[i].pos[0].x - (snake.pos[0].x - other[i].pos[0].x);
+				double y = other[i].pos[0].y - (snake.pos[0].y - other[i].pos[0].y);
+				other[i].update(true, true, x, y);
 			}
 			else {
 				other[i].update(true, chase < 200., other[chindex].pos.back().x, other[chindex].pos.back().y);
@@ -244,6 +242,7 @@ void Main() {
 	AudioAsset::Register(U"gameplay", U"GameData/gameplay.mp3", AssetParameter::LoadAsync());
 	AudioAsset::Register(U"eat", U"GameData/eat.mp3", AssetParameter::LoadAsync());
 	AudioAsset::Register(U"die", U"GameData/die.mp3", AssetParameter::LoadAsync());
+	AudioAsset(U"gameplay").setLoop(true);
 
 	while (System::Update()) {
 		if (situation == 0) {
@@ -285,7 +284,6 @@ void Main() {
 			font_35(U"ヘビの尻尾に自分の頭をくっつけましょう！").drawAt(600, 225);
 			font_35(U"頭をくっつけると、自分の長さが伸びます。").drawAt(600, 275);
 			font_35(U"自分の尻尾に頭をくっつけられないように気を付けましょう!").drawAt(600, 325);
-			font_35(U"左クリックしながらだと速くなります。").drawAt(600, 375);
 
 			Rect(420, 450, 360, 60).shearedX(120).draw(Palette::Blue);
 			font_35(U"戻る").drawAt(600, 480);
@@ -297,7 +295,7 @@ void Main() {
 			}
 		}
 		else if (situation == 2) {
-			if (gamingtime.s() >= 60) {
+			if (gamingtime.s() >= 1200) {
 				situation = 3;
 			}
 			if (!game.isdead) {
@@ -308,7 +306,7 @@ void Main() {
 					AudioAsset(U"die").play();
 				}
 				game.draw();
-				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 6), Palette::Red);
+				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 3), Palette::Red);
 				font_25(gamingtime.s()).drawAt(40, 40, Palette::Yellow);
 				font_25(U"Score:").draw(10, 110, Palette::Lightyellow);
 				font_25(score).draw(10, 135, Palette::Springgreen);

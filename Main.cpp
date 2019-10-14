@@ -75,14 +75,14 @@ struct Game {
 			Snake s;
 			double x, y;
 		loop:;
-			x = Random(-2000, 2000); y = Random(-2000, 2000);
+			x = Random(-1000, 2200); y = Random(-1000, 1600);
 			if (x >= 400 && x <= 800 && y >= 100 && y <= 500)goto loop;
 			s.init(x, y);
 			other.push_back(s);
 		}
 		back.clear();
-		for (double i = -2000; i < 2000; i += 50) {
-			for (double j = -2000; j < 2000; j += 50) {
+		for (double i = -100; i < 1300; i += 50) {
+			for (double j = -100; j < 700; j += 50) {
 				back.push_back({ i ,j });
 			}
 		}
@@ -127,11 +127,11 @@ struct Game {
 				for (int j = 0; j < other[i].pos.size(); j++) {
 					dead.push_back({ other[i].pos[j].x,other[i].pos[j].y,180. / other[i].pos.size() * j,1. });
 				}
-				other.erase(other.begin() + i);
-				if (other.size() < 80) {
+				other[i] = other.back(); other.pop_back();
+				if (other.size() < 50) {
 					Snake s; double x, y;
 				loop:;
-					x = Random(-2000, 2000); y = Random(-2000, 2000);
+					x = Random(-1000, 2200); y = Random(-1000, 1600);
 					if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop;
 					s.init(x, y);
 					other.push_back(s);
@@ -148,12 +148,12 @@ struct Game {
 					for (int k = 0; k < other[j].pos.size(); k++) {
 						dead.push_back({ other[j].pos[k].x,other[j].pos[k].y,180. / other[j].pos.size() * k,1.0 });
 					}
-					other.erase(other.begin() + j);
-					if (other.size() < 80) {
+					other[j] = other.back(); other.pop_back();
+					if (other.size() < 50) {
 						Snake s;
 						double x, y;
 					loop2:;
-						x = Random(-2000, 2000); y = Random(-2000, 2000);
+						x = Random(-1000, 2200); y = Random(-1000, 1600);
 						if (x >= 0 && x <= 1200 && y >= 0 && y <= 600)goto loop2;
 						s.init(x, y);
 						other.push_back(s);
@@ -180,7 +180,7 @@ struct Game {
 		standard.x = 600 - snake.pos[0].x;
 		standard.y = 300 - snake.pos[0].y;
 
-		int diffx = (2000 - back.back().x) / 50, diffy = (2000 - back.back().y) / 50;
+		int diffx = (1300 - back.back().x) / 50, diffy = (700 - back.back().y) / 50;
 		for (int i = 0; i < back.size(); i++) {
 			if (!isdead) {
 				back[i].x += standard.x;

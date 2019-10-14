@@ -59,6 +59,7 @@ struct Snake {
 double dis(double x, double y, double x_, double y_) {
 	return sqrt(pow(abs(x - x_), 2) + pow(abs(y - y_), 2));
 }
+
 struct Game {
 	Snake snake;
 	vector<Snake>other;
@@ -124,6 +125,7 @@ struct Game {
 		for (int i = 0; i < other.size(); i++) {
 			if (tip.intersects(Circle(other[i].pos.back().x, other[i].pos.back().y, 15))) {
 				snake.unite(other[i].pos.size());
+				AudioAsset(U"eat").stop(); AudioAsset(U"eat").play();
 				for (int j = 0; j < other[i].pos.size(); j++) {
 					dead.push_back({ other[i].pos[j].x,other[i].pos[j].y,180. / other[i].pos.size() * j,1. });
 				}
@@ -242,11 +244,16 @@ void Main() {
 	Stopwatch gamingtime;
 
 	int score = 0;
+
+	AudioAsset::Register(U"gameplay", U"GameData/gameplay.mp3", AssetParameter::LoadAsync());
+	AudioAsset::Register(U"eat", U"GameData/eat.mp3", AssetParameter::LoadAsync());
+	AudioAsset::Register(U"die", U"GameData/die.mp3", AssetParameter::LoadAsync());
+
 	while (System::Update()) {
 		if (situation == 0) {
 			String title = U"SnakeRun";
 			for (int i = 0; i < title.size(); i++) {
-				font_120(title[i]).draw(320 + i * 70, 60, HSV(i * 36));
+				font_120(title[i]).draw(320 + i * 70, 60, HSV(i * 40));
 			}
 			Rect(420, 270, 360, 60).shearedX(120).draw(Palette::Turquoise);
 			Rect(420, 360, 360, 60).shearedX(120).draw(Palette::Turquoise);
@@ -259,6 +266,7 @@ void Main() {
 						situation = i;
 						if (i == 2) {
 							game.init(); gamingtime.start();
+							AudioAsset(U"gameplay").play();
 						}
 					}
 				}
@@ -300,6 +308,8 @@ void Main() {
 				if (!game.update()) {
 					gamingtime.reset();
 					gamingtime.start();
+					AudioAsset(U"gameplay").stop();
+					AudioAsset(U"die").play();
 				}
 				game.draw();
 				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 6), Palette::Red);
@@ -310,7 +320,9 @@ void Main() {
 			}
 			else {
 				game.draw(0.01);
-				if (gamingtime.s() >= 2)situation = 3;
+				if (gamingtime.s() >= 2) {
+					situation = 3;
+				}
 			}
 		}
 		else {

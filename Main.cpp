@@ -13,23 +13,27 @@ struct ColorPoint2D :Point2D {
 struct Snake {
 	vector<Point2D>pos;
 	void update(bool automode, bool isfast, double x, double y) {
+
+		double para;
+		if (!automode)para = 1.0 + (pos.size() - 5) / 60.;
+		else para = 1.0 + (pos.size() - 5) / 5.;
+
 		if (!automode && sqrt(pow(abs(x - pos[0].x), 2) + pow(abs(y - pos[0].y), 2)) <= 15.0)goto loop;
 
 		double degree;
-		if (!automode)degree = 90 - ToDegrees(atan2(pos[0].y - y, x - pos[0].x));
-		else degree = 90 - ToDegrees(atan2(pos[0].y - y, x - pos[0].x));
+		degree = 90 - ToDegrees(atan2(pos[0].y - y, x - pos[0].x));
 
 		if (!automode) {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 360.;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 360.;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 360. * para;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 360. * para;
 		}
 		else if (isfast) {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 210.;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 210.;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 210. * para;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 210. * para;
 		}
 		else {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 150.;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 150.;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 150. * para;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 150. * para;
 		}
 	loop:;
 
@@ -92,6 +96,8 @@ struct Game {
 	bool update(int gamingtime) {
 		snake.update(false || isdead, true, Cursor::Pos().x, Cursor::Pos().y);
 
+		if (Scene::FrameCount() % 60 == 0)score += snake.pos.size() * gamingtime;
+
 		for (int i = 0; i < other.size(); i++) {
 			int chindex = -1, esindex = -1;
 			double chase = dis(snake.pos.back().x, snake.pos.back().y, other[i].pos[0].x, other[i].pos[0].y);
@@ -115,8 +121,17 @@ struct Game {
 				other[i].update(true, true, snake.pos.back().x, snake.pos.back().y);
 			}
 			else if (esindex == -1) {
-				double x = other[i].pos[0].x - (snake.pos[0].x - other[i].pos[0].x);
-				double y = other[i].pos[0].y - (snake.pos[0].y - other[i].pos[0].y);
+				double degree;
+				degree = 90 - ToDegrees(atan2(snake.pos[0].y - other[i].pos[0].y, other[i].pos[0].x - snake.pos[0].x));
+				double x, y;
+				if ((other[i].pos.size() ^ snake.pos.size()) % 2 == 0) {
+					x = other[i].pos[0].x + cos(ToRadians(90 - degree + 60)) * 1000.;
+					y = other[i].pos[0].y - sin(ToRadians(90 - degree + 60)) * 1000.;
+				}
+				else {
+					x = other[i].pos[0].x + cos(ToRadians(90 - degree - 60)) * 1000.;
+					y = other[i].pos[0].y - sin(ToRadians(90 - degree - 60)) * 1000.;
+				}
 				other[i].update(true, true, x, y);
 			}
 			else if (escape > 200) {
@@ -143,7 +158,7 @@ struct Game {
 			loop:;
 				x = Random(-500, 2400); y = Random(-500, 1600);
 				if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop;
-				s.init(x, y, 5 + gamingtime / 10);
+				s.init(x, y, 5 + gamingtime / 20);
 				other.push_back(s);
 				return true;
 			}
@@ -152,7 +167,7 @@ struct Game {
 			loop2:;
 				x = Random(-500, 2400); y = Random(-500, 1600);
 				if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop2;
-				s.init(x, y, 5 + gamingtime / 10);
+				s.init(x, y, 5 + gamingtime / 20);
 				other[i] = s;
 			}
 		}
@@ -171,7 +186,7 @@ struct Game {
 				loop3:;
 					x = Random(-500, 2400); y = Random(-500, 1600);
 					if (x >= windowx / 2 - 500 && x <= windowx / 2 + 500 && y >= windowy / 2 - 500 && y <= windowy / 2 + 500)goto loop3;
-					s.init(x, y, 5 + gamingtime / 10);
+					s.init(x, y, 5 + gamingtime / 20);
 					other.push_back(s);
 					return true;
 				}
@@ -328,10 +343,14 @@ void Main() {
 					AudioAsset(U"die").play();
 				}
 				game.draw();
-				Circle(40, 40, 40).drawPie(0, ToRadians(gamingtime.s() * 3), Palette::Red);
-				font_25(gamingtime.s()).drawAt(40, 40, Palette::Yellow);
-				font_25(U"Score:").draw(10, 110, Palette::Lightyellow);
-				font_25(game.score).draw(10, 135, Palette::Springgreen);
+				Circle(80, 80, 80).drawPie(0, ToRadians(gamingtime.s() * 3), Palette::Red);
+				font_35(120 - gamingtime.s()).drawAt(80, 80, Palette::Yellow);
+				font_35(U"Score:").draw(10, 200, Palette::Lightyellow);
+				font_35(game.score).draw(10, 250, Palette::Springgreen);
+				if (gamingtime.s() == 60 || gamingtime.s() == 90 || gamingtime.s() == 105 || gamingtime.s() == 110 || gamingtime.s() >= 115 && gamingtime.ms() % 1000 <= 200) {
+					Circle(resolutions.back().x / 2, resolutions.back().y / 2, 160).drawPie(0, ToRadians(gamingtime.s() * 3), HSV(0, 0.3));
+					font_120(120 - gamingtime.s()).drawAt(resolutions.back().x / 2, resolutions.back().y / 2, HSV(60, 0.3));
+				}
 			}
 			else {
 				game.draw(0.01);

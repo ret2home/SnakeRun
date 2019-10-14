@@ -119,7 +119,7 @@ struct Game {
 				double y = other[i].pos[0].y - (snake.pos[0].y - other[i].pos[0].y);
 				other[i].update(true, true, x, y);
 			}
-			else if (escape > chase) {
+			else if (escape > 200) {
 				other[i].update(true, chase < 200., other[chindex].pos.back().x, other[chindex].pos.back().y);
 			}
 			else {

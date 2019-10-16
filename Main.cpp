@@ -318,7 +318,10 @@ void Main() {
 					Rect(420, 180 + 90 * i, 360, 60).shearedX(120).drawFrame(7, Palette::Yellow);
 					if (Rect(420, 180 + 90 * i, 360, 60).shearedX(120).leftClicked()) {
 						situation = i;
-						if (i == 2) {
+						if (i == 1) {
+							game.init(1200, 900, 0);
+						}
+						else {
 							game.init(resolutions.back().x, resolutions.back().y); gamingtime.start();
 							gameplay.play();
 							Window::SetFullscreen(true, resolutions.back());
@@ -340,16 +343,22 @@ void Main() {
 			}
 		}
 		else if (situation == 1) {
-			font_75(U"遊び方").drawAt(600, 120, Palette::Deepskyblue);
-			font_35(U"ヘビの尻尾に自分の頭をくっつけましょう！").drawAt(600, 225);
-			font_35(U"頭をくっつけると、自分の長さが伸びます。").drawAt(600, 275);
-			font_35(U"自分の尻尾に頭をくっつけられないように気を付けましょう!").drawAt(600, 325);
 
-			Rect(420, 450, 360, 60).shearedX(120).draw(Palette::Blue);
-			font_35(U"戻る").drawAt(600, 480);
-			if (Rect(420, 450, 360, 60).shearedX(120).mouseOver()) {
-				Rect(420, 450, 360, 60).shearedX(120).drawFrame(7, Palette::Yellow);
-				if (Rect(420, 450, 360, 60).shearedX(120).leftClicked()) {
+			game.draw(); game.update(0);
+
+			font_75(U"遊び方").drawAt(600, 120, Palette::Deepskyblue);
+			font_25(U"ヘビの尻尾に自分の頭をくっつけましょう！").drawAt(600, 225);
+			font_25(U"頭をくっつけると、自分の長さが伸びます。").drawAt(600, 255);
+			font_25(U"自分の尻尾に頭をくっつけられないように気を付けましょう!").drawAt(600, 285);
+			font_25(U"ヘビは、カーソルの方向に進みます。").drawAt(600, 315);
+			font_25(U"左クリックをしている間は加速しますが、長さが縮みます。").drawAt(600, 345);
+			font_25(U"練習してみましょう！").drawAt(600, 375);
+
+			Rect(420, 550, 360, 40).shearedX(120).draw(Palette::Blue);
+			font_35(U"戻る").drawAt(600, 570);
+			if (Rect(420, 550, 360, 40).shearedX(120).mouseOver()) {
+				Rect(420, 550, 360, 40).shearedX(120).drawFrame(7, Palette::Yellow);
+				if (Rect(420, 550, 360, 60).shearedX(120).leftClicked()) {
 					situation = 0;
 				}
 			}

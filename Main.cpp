@@ -16,7 +16,7 @@ struct Snake {
 
 		double para;
 		if (!automode)para = 1.0 + (pos.size() - 5) / 80.;
-		else para = 1.0 + (pos.size() - 5) / 20.;
+		else para = 1.0 + (pos.size() - 5) / 40.;
 
 		if (!automode && sqrt(pow(abs(x - pos[0].x), 2) + pow(abs(y - pos[0].y), 2)) <= 15.0)goto loop;
 
@@ -25,8 +25,8 @@ struct Snake {
 
 
 		if (!automode && isfast && pos.size() > 5) {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 600. * para;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 600. * para;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 540. * para;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 540. * para;
 			if (Scene::FrameCount() % 120 == 0) {
 				pos.pop_back();
 			}
@@ -36,8 +36,8 @@ struct Snake {
 			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 360. * para;
 		}
 		else if (isfast && pos.size() > 5) {
-			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 330. * para;
-			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 330. * para;
+			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * 300. * para;
+			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * 300. * para;
 			if (Scene::FrameCount() % 120 == 0) {
 				pos.pop_back();
 			}
@@ -109,35 +109,15 @@ struct Game {
 	bool update(int gamingtime) {
 		snake.update(false || isdead, MouseL.pressed(), Cursor::Pos().x, Cursor::Pos().y);
 
-		if (Scene::FrameCount() % 60 == 0)score += snake.pos.size() * gamingtime;
+		if (Scene::FrameCount() % 60 == 0)score += snake.pos.size() * gamingtime / 10.;
 
-		for (int i = 0; i < other.size(); i++) {
-			int chindex = -1, esindex = -1;
-			double chase = dis(snake.pos.back().x, snake.pos.back().y, other[i].pos[0].x, other[i].pos[0].y);
-			double escape = dis(snake.pos[0].x, snake.pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
+			for (int i = 0; i < other.size(); i++) {
+				int chindex = -1, esindex = -1;
+				double chase = dis(snake.pos.back().x, snake.pos.back().y, other[i].pos[0].x, other[i].pos[0].y);
+				double escape = dis(snake.pos[0].x, snake.pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
 
-			if (chase >= escape && escape <= other[i].pos.size() * 14. * 3.) {
-				double degree = getdegree(snake.pos[0].x, snake.pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
-				double x, y;
-				if (gamingtime % 4 < 2) {
-					x = other[i].pos[0].x + cos(ToRadians(90 - degree + 60)) * 100.;
-					y = other[i].pos[0].y - sin(ToRadians(90 - degree + 60)) * 100.;
-				}
-				else {
-					x = other[i].pos[0].x + cos(ToRadians(90 - degree - 60)) * 100.;
-					y = other[i].pos[0].y - sin(ToRadians(90 - degree - 60)) * 100.;
-				}
-				other[i].update(true, escape < 100, x, y);
-				goto endupdate;
-
-			}
-			for (int j = 0; j < other.size(); j++) {
-				if (i == j)continue;
-				double di1 = dis(other[i].pos[0].x, other[i].pos[0].y, other[j].pos.back().x, other[j].pos.back().y);
-				double di2 = dis(other[i].pos.back().x, other[i].pos.back().y, other[j].pos[0].x, other[j].pos[0].y);
-
-				if (di1 >= di2 && di2 <= other[i].pos.size() * 14. * 2.) {
-					double degree = getdegree(other[j].pos[0].x, other[j].pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
+				if (chase >= escape && escape <= other[i].pos.size() * 14. * 3.) {
+					double degree = getdegree(snake.pos[0].x, snake.pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
 					double x, y;
 					if (gamingtime % 4 < 2) {
 						x = other[i].pos[0].x + cos(ToRadians(90 - degree + 60)) * 100.;
@@ -149,29 +129,49 @@ struct Game {
 					}
 					other[i].update(true, escape < 100, x, y);
 					goto endupdate;
-				}
 
-				if (escape > di2) {
-					escape = di2;
-					esindex = j;
 				}
-				if (chase > di1&& di2 > di1) {
-					chindex = j; chase = di1;
+				for (int j = 0; j < other.size(); j++) {
+					if (i == j)continue;
+					double di1 = dis(other[i].pos[0].x, other[i].pos[0].y, other[j].pos.back().x, other[j].pos.back().y);
+					double di2 = dis(other[i].pos.back().x, other[i].pos.back().y, other[j].pos[0].x, other[j].pos[0].y);
+
+					if (di1 >= di2 && di2 <= other[i].pos.size() * 14. * 2.) {
+						double degree = getdegree(other[j].pos[0].x, other[j].pos[0].y, other[i].pos.back().x, other[i].pos.back().y);
+						double x, y;
+						if (gamingtime % 4 < 2) {
+							x = other[i].pos[0].x + cos(ToRadians(90 - degree + 60)) * 100.;
+							y = other[i].pos[0].y - sin(ToRadians(90 - degree + 60)) * 100.;
+						}
+						else {
+							x = other[i].pos[0].x + cos(ToRadians(90 - degree - 60)) * 100.;
+							y = other[i].pos[0].y - sin(ToRadians(90 - degree - 60)) * 100.;
+						}
+						other[i].update(true, escape < 100, x, y);
+						goto endupdate;
+					}
+
+					if (escape > di2) {
+						escape = di2;
+						esindex = j;
+					}
+					if (chase > di1&& di2 > di1) {
+						chindex = j; chase = di1;
+					}
 				}
+				if (chindex == -1) {
+					other[i].update(true, chase < 100, snake.pos.back().x, snake.pos.back().y);
+				}
+				else {
+					other[i].update(true, chase < 100, other[chindex].pos.back().x, other[chindex].pos.back().y);
+				}
+			endupdate:;
 			}
-			if (chindex == -1) {
-				other[i].update(true, chase < 100, snake.pos.back().x, snake.pos.back().y);
-			}
-			else {
-				other[i].update(true, chase < 100, other[chindex].pos.back().x, other[chindex].pos.back().y);
-			}
-		endupdate:;
-		}
 
 		Circle tip(snake.pos[0].x, snake.pos[0].y, 20);
 		for (int i = 0; i < other.size(); i++) {
 			if (tip.intersects(Circle(other[i].pos.back().x, other[i].pos.back().y, 7))) {
-				score += other[i].pos.size();
+				score += other[i].pos.size() * 100;
 				snake.unite(1);
 				AudioAsset(U"eat").stop(); AudioAsset(U"eat").play();
 				for (int j = 0; j < other[i].pos.size(); j++) {

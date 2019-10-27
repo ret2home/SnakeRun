@@ -100,7 +100,7 @@ struct Snake {
 			}
 			else {
 				//隠しモード
-				susumu = 500;
+				susumu = 480;
 			}
 			pos[0].x = pos[0].x + cos(ToRadians(90 - degree)) * Scene::DeltaTime() * susumu * para;
 			pos[0].y = pos[0].y - sin(ToRadians(90 - degree)) * Scene::DeltaTime() * susumu * para;
@@ -183,7 +183,7 @@ struct Game {
 		other.clear();
 		dead.clear();
 		//自機の初期化
-		snake.init((double)windowx / 2, (double)windowy / 2, 7);
+		snake.init((double)windowx / 2, (double)windowy / 2, 10);
 		//敵機の生成
 		for (int i = 0; i < size; i++) {
 			Snake s;

@@ -510,12 +510,12 @@ void Main() {
 
 			howtoeat.drawAt(200, 325);
 			FontAsset(U"title")(U"あそびかた").drawAt(600, 120, HSV(120));
-			FontAsset(U"font_30")(U"他のヘビの尾に頭をくっつけて食べましょう！").drawAt(800, 225, Palette::Black);
-			FontAsset(U"font_30")(U"頭をくっつけると、自分の長さが伸びます。").drawAt(800, 265, Palette::Black);
-			FontAsset(U"font_30")(U"ヘビは、カーソルの方向に進みます。").drawAt(800, 305, Palette::Black);
-			FontAsset(U"font_30")(U"左クリックをしている間は加速しますが、長さが縮みます。").drawAt(800, 345, Palette::Black);
-			FontAsset(U"font_30")(U"縮みすぎると、加速できなくなります。").drawAt(800, 385, Palette::Black);
-			FontAsset(U"font_30")(U"くれぐれも自分が食べられないように！").drawAt(800, 425, Palette::Black);
+			FontAsset(U"font_30")(U"他のヘビの尾に頭をくっつけて食べましょう！").drawAt(750, 225, Palette::Yellow);
+			FontAsset(U"font_30")(U"頭をくっつけると、自分の長さが伸びます。").drawAt(750, 265, Palette::Black);
+			FontAsset(U"font_30")(U"ヘビは、カーソルの方向に進みます。").drawAt(750, 305, Palette::Yellow);
+			FontAsset(U"font_30")(U"左クリックをしている間は加速しますが、長さが縮みます。").drawAt(750, 345, Palette::Black);
+			FontAsset(U"font_30")(U"縮みすぎると、加速できなくなります。").drawAt(750, 385, Palette::Black);
+			FontAsset(U"font_30")(U"くれぐれも自分が食べられないように！").drawAt(750, 425, Palette::Yellow);
 
 			if (button(U"もどる", Vec2(400, 500), Vec2(400, 60), HSV(210))) {
 				situation = 0;
@@ -562,7 +562,7 @@ void Main() {
 			//ゲーム画面
 
 			//時間切れ
-			if (gamingtime.s() >= 120) {
+			if (gamingtime.s() >= 60) {
 				situation = 4;
 				Window::SetFullscreen(false);
 				gameplay.stop();
@@ -579,8 +579,8 @@ void Main() {
 					AudioAsset(U"die").play();
 				}
 				//残り時間
-				Circle(80, 80, 80).drawPie(0, ToRadians(gamingtime.s() * 3), Palette::Red);
-				FontAsset(U"ranking")(120 - gamingtime.s()).drawAt(80, 80, Palette::Yellow);
+				Circle(80, 80, 80).drawPie(0, ToRadians(gamingtime.s() * 6), Palette::Red);
+				FontAsset(U"ranking")(60 - gamingtime.s()).drawAt(80, 80, Palette::Yellow);
 				//スコア等表示
 				FontAsset(U"ranking")(U"スコア").draw(10, 200, Palette::Lightyellow);
 				FontAsset(U"ranking")(game.score).draw(10, 260, Palette::Springgreen);
@@ -600,9 +600,9 @@ void Main() {
 				}
 				FontAsset(U"ranking")(level).draw(10, 410, Palette::Springgreen);
 				//一定の時間になったら残り時間を表示
-				if (gamingtime.s() == 60 || gamingtime.s() == 90 || gamingtime.s() == 105 || gamingtime.s() == 110 || gamingtime.s() >= 115 && gamingtime.ms() % 1000 <= 200) {
-					Circle(resolutions.back().x / 2, resolutions.back().y / 2, 160).drawPie(0, ToRadians(gamingtime.s() * 3), HSV(0, 0.3));
-					FontAsset(U"title")(120 - gamingtime.s()).drawAt(resolutions.back().x / 2, resolutions.back().y / 2, HSV(60, 0.3));
+				if (gamingtime.s() == 30 || gamingtime.s() == 45 || gamingtime.s() == 50 ||  gamingtime.s() >= 55 && gamingtime.ms() % 1000 <= 200) {
+					Circle(resolutions.back().x / 2, resolutions.back().y / 2, 160).drawPie(0, ToRadians(gamingtime.s() * 6), HSV(0, 0.3));
+					FontAsset(U"title")(60 - gamingtime.s()).drawAt(resolutions.back().x / 2, resolutions.back().y / 2, HSV(60, 0.3));
 				}
 			}
 			else {

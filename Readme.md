@@ -12,6 +12,7 @@
 ■　動作環境
 ---------------------------------------------------------------
 　Windows 10 ... そのまま動きます。
+
   Mac,Linux ... OpenSiv3Dをインストールして、Main.cppでビルドしてください。
 
 
@@ -52,7 +53,8 @@
 ■　連絡先
 ---------------------------------------------------------------
 Mail: defineprogram@gmail.com
-Twitter: https://twitter.com/define_AC
+
+Twitter: [@defineprogram](https://twitter.com/defineprogram)
 
 
 ■　禁止事項
